@@ -1,0 +1,38 @@
+{
+  "name": "temporizador-metas-backend",
+  "version": "1.0.0",
+  "description": "",
+  "type":"module",
+  "keywords": [
+    "backend",
+    "javascript",
+    "node",
+    "express",
+    "mysql",
+    "goals",
+    "temporizador",
+    "metas"
+  ],
+  "homepage": "https://github.com/JohanDs1/temporizador-metas-backend#readme",
+  "bugs": {
+    "url": "https://github.com/JohanDs1/temporizador-metas-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohanDs1/temporizador-metas-backend.git"
+  },
+  "license": "ISC",
+  "author": "Johan Bermeo",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.23.2"
+  }
+}
