@@ -10,11 +10,6 @@ API REST para gestionar usuarios y metas del proyecto **Temporizador de Metas**.
 http://localhost:3000/api
 ```
 
-### Production
-
-La URL de producción dependerá del dominio configurado en Render.
-
----
 
 # Users
 
@@ -44,10 +39,8 @@ Usuario creado correctamente.
 
 ```json
 {
-  "id": 1,
-  "username": "johan",
-  "created_at": "2026-07-31T20:00:00.000Z",
-  "updated_at": "2026-07-31T20:00:00.000Z"
+  "success": true,
+  "message": "Usuario creado con éxito"
 }
 ```
 
@@ -70,7 +63,8 @@ El `username` no fue enviado.
 
 ```json
 {
-  "message": "Username is required"
+  "success": false
+  "message": "Nombre de usuario es requerido"
 }
 ```
 
@@ -80,6 +74,7 @@ Ocurrió un error interno en el servidor.
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -119,7 +114,9 @@ GET /users/johan
 
 ```json
 {
-  "message": "User not found"
+
+  "success": false,
+  "message": "Usuario no encontrado"
 }
 ```
 
@@ -127,6 +124,7 @@ GET /users/johan
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -163,7 +161,8 @@ GET /goals
 
 ```json
 [
-  {
+  "success": true,
+  "goals": [{
     "id": 1,
     "user_id": 1,
     "name": "Aprender React",
@@ -173,7 +172,7 @@ GET /goals
     "completed": 0,
     "created_at": "2026-07-31T20:00:00.000Z",
     "updated_at": "2026-07-31T20:00:00.000Z"
-  }
+  }]
 ]
 ```
 
@@ -185,7 +184,8 @@ El `userId` no fue enviado.
 
 ```json
 {
-  "message": "User ID is required"
+  "success": false,
+  "message": "User ID is requerido"
 }
 ```
 
@@ -193,6 +193,7 @@ El `userId` no fue enviado.
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -221,6 +222,9 @@ GET /goals/1?userId=1
 
 ```json
 {
+"success": true,
+"goal": 
+{
   "id": 1,
   "user_id": 1,
   "name": "Aprender React",
@@ -231,13 +235,15 @@ GET /goals/1?userId=1
   "created_at": "2026-07-31T20:00:00.000Z",
   "updated_at": "2026-07-31T20:00:00.000Z"
 }
+}
 ```
 
 #### `400 Bad Request`
 
 ```json
 {
-  "message": "User ID is required"
+  "success": false,
+  "message": "User ID is requerido"
 }
 ```
 
@@ -247,7 +253,8 @@ La meta no existe, fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
-  "message": "Goal not found"
+  "success": false,
+  "message": "Meta no encontrada"
 }
 ```
 
@@ -255,6 +262,7 @@ La meta no existe, fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -299,15 +307,8 @@ POST /goals
 
 ```json
 {
-  "id": 1,
-  "user_id": 1,
-  "name": "Aprender React",
-  "description": "Aprender React y crear un proyecto personal",
-  "start_date": "2026-07-01T00:00:00.000Z",
-  "target_date": "2026-12-31T00:00:00.000Z",
-  "completed": 0,
-  "created_at": "2026-07-31T20:00:00.000Z",
-  "updated_at": "2026-07-31T20:00:00.000Z"
+  "success": true,
+  "message": "Meta creada exitosamente"
 }
 ```
 
@@ -323,6 +324,7 @@ POST /goals
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -375,15 +377,8 @@ PATCH /goals/1
 
 ```json
 {
-  "id": 1,
-  "user_id": 1,
-  "name": "Aprender React y Next.js",
-  "description": "Aprender React y Next.js para crear proyectos personales",
-  "start_date": "2026-07-01T00:00:00.000Z",
-  "target_date": "2026-12-31T00:00:00.000Z",
-  "completed": 0,
-  "created_at": "2026-07-31T20:00:00.000Z",
-  "updated_at": "2026-07-31T21:00:00.000Z"
+  "success": true,
+  "message": "Meta actualizada exitosamente"
 }
 ```
 
@@ -391,6 +386,7 @@ PATCH /goals/1
 
 ```json
 {
+  "success": false,
   "message": "User ID, name, start date, target date and completed are required"
 }
 ```
@@ -401,7 +397,8 @@ La meta no existe, fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
-  "message": "Goal not found"
+  "success": false,
+  "message": "Meta no encontrada"
 }
 ```
 
@@ -409,6 +406,7 @@ La meta no existe, fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```
@@ -445,7 +443,8 @@ No se devuelve ningún body.
 
 ```json
 {
-  "message": "User ID is required"
+  "success": false,
+  "message": "User ID es requerido"
 }
 ```
 
@@ -455,7 +454,8 @@ La meta no existe, ya fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
-  "message": "Goal not found"
+  "success": false,
+  "message": "Meta no encontrada"
 }
 ```
 
@@ -463,6 +463,7 @@ La meta no existe, ya fue eliminada o no pertenece al usuario indicado.
 
 ```json
 {
+  "success": false,
   "message": "Internal server error"
 }
 ```

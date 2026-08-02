@@ -12,17 +12,22 @@ export const getGoals = async (req, res) => {
 
     if (!userId) {
       return res.status(400).json({
-        message: 'User ID is required'
+        success: false,
+        message: 'User ID is requerido'
       })
     }
 
     const goals = await findGoalsByUserId(userId)
 
-    return res.status(200).json(goals)
+    return res.status(200).json({
+      success: true,
+      goals
+    })
   } catch (error) {
-    console.error('Error getting goals:', error)
+    console.error('Error al obtener las metas:', error)
 
     return res.status(500).json({
+      success: false,
       message: 'Internal server error'
     })
   }
@@ -35,7 +40,8 @@ export const getGoalById = async (req, res) => {
 
     if (!userId) {
       return res.status(400).json({
-        message: 'User ID is required'
+        success: false,
+        message: 'User ID es requerido'
       })
     }
 
@@ -43,15 +49,20 @@ export const getGoalById = async (req, res) => {
 
     if (!goal) {
       return res.status(404).json({
-        message: 'Goal not found'
+        success: false,
+        message: 'Meta no encontrada'
       })
     }
 
-    return res.status(200).json(goal)
+    return res.status(200).json({
+      success: true,
+      goal
+    })
   } catch (error) {
-    console.error('Error getting goal:', error)
+    console.error('Error al obtener meta:', error)
 
     return res.status(500).json({
+      success: false,
       message: 'Internal server error'
     })
   }
@@ -69,6 +80,7 @@ export const createNewGoal = async (req, res) => {
 
     if (!userId || !name || !startDate || !targetDate) {
       return res.status(400).json({
+        success: false,
         message: 'User ID, name, start date and target date are required'
       })
     }
@@ -81,11 +93,15 @@ export const createNewGoal = async (req, res) => {
       targetDate
     })
 
-    return res.status(201).json(goal)
+    return res.status(201).json({
+      success: true,
+      message: "Meta creada exitosamente"
+    })
   } catch (error) {
-    console.error('Error creating goal:', error)
+    console.error('Error al crear la meta:', error)
 
     return res.status(500).json({
+      success: false,
       message: 'Internal server error'
     })
   }
@@ -111,6 +127,7 @@ export const updateExistingGoal = async (req, res) => {
       completed === undefined
     ) {
       return res.status(400).json({
+        success: false,
         message: 'User ID, name, start date, target date and completed are required'
       })
     }
@@ -129,15 +146,20 @@ export const updateExistingGoal = async (req, res) => {
 
     if (!goal) {
       return res.status(404).json({
-        message: 'Goal not found'
+        success: false,
+        message: 'Meta no encontrada'
       })
     }
 
-    return res.status(200).json(goal)
+    return res.status(200).json({
+      success: true,
+      message: "Meta actualizada exitosamente"
+    })
   } catch (error) {
     console.error('Error updating goal:', error)
 
     return res.status(500).json({
+      success: false,
       message: 'Internal server error'
     })
   }
@@ -150,7 +172,8 @@ export const deleteExistingGoal = async (req, res) => {
 
     if (!userId) {
       return res.status(400).json({
-        message: 'User ID is required'
+        success: false,
+        message: 'User ID es requerido'
       })
     }
 
@@ -158,7 +181,8 @@ export const deleteExistingGoal = async (req, res) => {
 
     if (!deleted) {
       return res.status(404).json({
-        message: 'Goal not found'
+        success: false,
+        message: 'Meta no encontrada'
       })
     }
 
@@ -167,6 +191,7 @@ export const deleteExistingGoal = async (req, res) => {
     console.error('Error deleting goal:', error)
 
     return res.status(500).json({
+      success: false,
       message: 'Internal server error'
     })
   }
