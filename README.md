@@ -135,7 +135,7 @@ GET /users/johan
 
 # Goals
 
-Las metas pertenecen a un usuario específico y se consultan utilizando su `username`.
+Las metas se gestionan mediante su identificador único (`id`) y están asociadas a un usuario mediante el campo `user_id`.
 
 Las metas eliminadas mediante `DELETE` no se eliminan físicamente de la base de datos. Se utiliza **soft delete** mediante el campo `deleted_at`.
 
@@ -147,20 +147,14 @@ deleted_at IS NULL
 
 ---
 
-## Obtener todas las metas de un usuario
+## Obtener todas las metas
 
-Obtiene todas las metas activas de un usuario.
+Obtiene todas las metas activas.
 
 ### Request
 
 ```http
-GET /users/:username/goals
-```
-
-### Ejemplo
-
-```http
-GET /users/johan/goals
+GET /goals
 ```
 
 ### Response
@@ -171,20 +165,11 @@ GET /users/johan/goals
 [
   {
     "id": 1,
+    "user_id": 1,
     "name": "Aprender React",
     "description": "Aprender React y crear un proyecto personal",
     "start_date": "2026-07-01T00:00:00.000Z",
     "target_date": "2026-12-31T00:00:00.000Z",
-    "completed": 0,
-    "created_at": "2026-07-31T20:00:00.000Z",
-    "updated_at": "2026-07-31T20:00:00.000Z"
-  },
-  {
-    "id": 2,
-    "name": "Aprender TypeScript",
-    "description": null,
-    "start_date": "2026-08-01T00:00:00.000Z",
-    "target_date": "2026-10-01T00:00:00.000Z",
     "completed": 0,
     "created_at": "2026-07-31T20:00:00.000Z",
     "updated_at": "2026-07-31T20:00:00.000Z"
@@ -194,13 +179,13 @@ GET /users/johan/goals
 
 Las metas se devuelven ordenadas por `target_date` ascendente.
 
-#### `404 Not Found`
+#### `400 Bad Request`
 
-El usuario no existe.
+El `userId` no fue enviado.
 
 ```json
 {
-  "message": "User not found"
+  "message": "User ID is required"
 }
 ```
 
@@ -216,27 +201,28 @@ El usuario no existe.
 
 ## Obtener una meta específica
 
-Obtiene una meta específica perteneciente al usuario indicado.
+Obtiene una meta específica perteneciente al usuario indicado mediante `userId`.
 
 ### Request
 
 ```http
-GET /users/:username/goals/:id
+GET /goals/:id?userId=1
 ```
 
 ### Ejemplo
 
 ```http
-GET /users/johan/goals/1
+GET /goals/1?userId=1
 ```
 
-### Responses
+### Response
 
 #### `200 OK`
 
 ```json
 {
   "id": 1,
+  "user_id": 1,
   "name": "Aprender React",
   "description": "Aprender React y crear un proyecto personal",
   "start_date": "2026-07-01T00:00:00.000Z",
@@ -244,6 +230,14 @@ GET /users/johan/goals/1
   "completed": 0,
   "created_at": "2026-07-31T20:00:00.000Z",
   "updated_at": "2026-07-31T20:00:00.000Z"
+}
+```
+
+#### `400 Bad Request`
+
+```json
+{
+  "message": "User ID is required"
 }
 ```
 
@@ -269,24 +263,19 @@ La meta no existe, fue eliminada o no pertenece al usuario indicado.
 
 ## Crear una meta
 
-Crea una nueva meta para el usuario indicado.
+Crea una nueva meta asociada al usuario indicado mediante `userId`.
 
 ### Request
 
 ```http
-POST /users/:username/goals
-```
-
-### Ejemplo
-
-```http
-POST /users/johan/goals
+POST /goals
 ```
 
 ### Body
 
 ```json
 {
+  "userId": 1,
   "name": "Aprender React",
   "description": "Aprender React y crear un proyecto personal",
   "startDate": "2026-07-01T00:00:00.000Z",
@@ -298,6 +287,7 @@ POST /users/johan/goals
 
 | Campo         | Tipo   | Requerido | Descripción                    |
 | ------------- | ------ | --------- | ------------------------------ |
+| `userId`      | number | Sí        | ID del usuario propietario     |
 | `name`        | string | Sí        | Nombre de la meta              |
 | `description` | string | No        | Descripción de la meta         |
 | `startDate`   | string | Sí        | Fecha de inicio en formato ISO |
@@ -310,6 +300,7 @@ POST /users/johan/goals
 ```json
 {
   "id": 1,
+  "user_id": 1,
   "name": "Aprender React",
   "description": "Aprender React y crear un proyecto personal",
   "start_date": "2026-07-01T00:00:00.000Z",
@@ -322,21 +313,9 @@ POST /users/johan/goals
 
 #### `400 Bad Request`
 
-Falta uno de los campos requeridos.
-
 ```json
 {
-  "message": "Name, start date and target date are required"
-}
-```
-
-#### `404 Not Found`
-
-El usuario no existe.
-
-```json
-{
-  "message": "User not found"
+  "message": "User ID, name, start date and target date are required"
 }
 ```
 
@@ -357,19 +336,20 @@ Actualiza los datos de una meta existente.
 ### Request
 
 ```http
-PATCH /users/:username/goals/:id
+PATCH /goals/:id
 ```
 
 ### Ejemplo
 
 ```http
-PATCH /users/johan/goals/1
+PATCH /goals/1
 ```
 
 ### Body
 
 ```json
 {
+  "userId": 1,
   "name": "Aprender React y Next.js",
   "description": "Aprender React y Next.js para crear proyectos personales",
   "startDate": "2026-07-01T00:00:00.000Z",
@@ -382,6 +362,7 @@ PATCH /users/johan/goals/1
 
 | Campo         | Tipo    | Requerido | Descripción                       |
 | ------------- | ------- | --------- | --------------------------------- |
+| `userId`      | number  | Sí        | ID del usuario propietario        |
 | `name`        | string  | Sí        | Nombre de la meta                 |
 | `description` | string  | No        | Descripción de la meta            |
 | `startDate`   | string  | Sí        | Fecha de inicio en formato ISO    |
@@ -395,6 +376,7 @@ PATCH /users/johan/goals/1
 ```json
 {
   "id": 1,
+  "user_id": 1,
   "name": "Aprender React y Next.js",
   "description": "Aprender React y Next.js para crear proyectos personales",
   "start_date": "2026-07-01T00:00:00.000Z",
@@ -407,11 +389,9 @@ PATCH /users/johan/goals/1
 
 #### `400 Bad Request`
 
-Falta uno de los campos requeridos.
-
 ```json
 {
-  "message": "Name, start date, target date and completed are required"
+  "message": "User ID, name, start date, target date and completed are required"
 }
 ```
 
@@ -444,22 +424,30 @@ La meta no se elimina físicamente de la base de datos. Se actualiza el campo `d
 ### Request
 
 ```http
-DELETE /users/:username/goals/:id
+DELETE /goals/:id?userId=1
 ```
 
 ### Ejemplo
 
 ```http
-DELETE /users/johan/goals/1
+DELETE /goals/1?userId=1
 ```
 
-### Responses
+### Response
 
 #### `204 No Content`
 
 La meta fue eliminada correctamente.
 
 No se devuelve ningún body.
+
+#### `400 Bad Request`
+
+```json
+{
+  "message": "User ID is required"
+}
+```
 
 #### `404 Not Found`
 
@@ -481,20 +469,17 @@ La meta no existe, ya fue eliminada o no pertenece al usuario indicado.
 
 ---
 
-# Resumen de endpoints
+## Resumen de endpoints
 
-| Método   | Endpoint                     | Descripción                     |
-| -------- | ---------------------------- | ------------------------------- |
-| `POST`   | `/users`                     | Crear o obtener un usuario      |
-| `GET`    | `/users/:username`           | Obtener un usuario              |
-| `GET`    | `/users/:username/goals`     | Obtener todas las metas activas |
-| `GET`    | `/users/:username/goals/:id` | Obtener una meta específica     |
-| `POST`   | `/users/:username/goals`     | Crear una meta                  |
-| `PATCH`  | `/users/:username/goals/:id` | Actualizar una meta             |
-| `DELETE` | `/users/:username/goals/:id` | Borrado lógico de una meta      |
+| Método   | Endpoint              | Descripción                                 |
+| -------- | --------------------- | ------------------------------------------- |
+| `GET`    | `/goals?userId=1`     | Obtener todas las metas activas del usuario |
+| `GET`    | `/goals/:id?userId=1` | Obtener una meta específica                 |
+| `POST`   | `/goals`              | Crear una meta                              |
+| `PATCH`  | `/goals/:id`          | Actualizar una meta                         |
+| `DELETE` | `/goals/:id?userId=1` | Borrado lógico de una meta                  |
 
 ---
-
 # Data Flow
 
 ## Crear o identificar usuario
@@ -526,15 +511,12 @@ User Model
 ```text
 Frontend
     │
-    │ GET /users/:username/goals
+    │ GET /goals?userId=1
     ▼
 Goal Controller
     │
     ▼
 Goal Model
-    │
-    ▼
-Busca user_id mediante username
     │
     ▼
 Busca goals mediante user_id
@@ -544,6 +526,96 @@ Filtra deleted_at IS NULL
     │
     ▼
 Devuelve metas
+```
+
+## Obtener una meta específica
+
+```text
+Frontend
+    │
+    │ GET /goals/:id?userId=1
+    ▼
+Goal Controller
+    │
+    ▼
+Goal Model
+    │
+    ▼
+Busca goal mediante id
+    │
+    ▼
+Verifica que pertenezca al user_id
+    │
+    ▼
+Filtra deleted_at IS NULL
+    │
+    ▼
+Devuelve la meta
+```
+
+## Crear una meta
+
+```text
+Frontend
+    │
+    │ POST /goals
+    │ { userId, name, description, startDate, targetDate }
+    ▼
+Goal Controller
+    │
+    ▼
+Goal Model
+    │
+    ▼
+Crea goal asociado al user_id
+    │
+    ▼
+Devuelve la meta creada
+```
+
+## Actualizar una meta
+
+```text
+Frontend
+    │
+    │ PATCH /goals/:id
+    │ { userId, name, description, startDate, targetDate, completed }
+    ▼
+Goal Controller
+    │
+    ▼
+Goal Model
+    │
+    ▼
+Verifica que la meta pertenezca al user_id
+    │
+    ▼
+Actualiza la meta
+    │
+    ▼
+Devuelve la meta actualizada
+```
+
+## Eliminar una meta
+
+```text
+Frontend
+    │
+    │ DELETE /goals/:id?userId=1
+    ▼
+Goal Controller
+    │
+    ▼
+Goal Model
+    │
+    ▼
+Verifica que la meta pertenezca al user_id
+    │
+    ▼
+Actualiza deleted_at
+    │
+    ▼
+Meta marcada como eliminada
 ```
 
 ## Contador de tiempo
@@ -562,12 +634,13 @@ El contador se actualiza en tiempo real en el cliente y no requiere que el backe
 
 # Notas
 
-* La API utiliza `username` para identificar al usuario en las rutas.
+* La API utiliza `userId` para identificar al usuario propietario de las metas.
 * La relación entre `users` y `goals` se mantiene mediante `user_id` en la base de datos.
 * Las metas utilizan borrado lógico mediante `deleted_at`.
 * Las metas eliminadas no aparecen en las consultas normales.
 * Actualmente no existe autenticación mediante contraseña o tokens.
-* La privacidad de los usuarios depende de que el `username` sea conocido y no existe un sistema de autenticación real.
+* La API verifica que las metas consultadas, actualizadas o eliminadas pertenezcan al `userId` indicado.
+* La privacidad de los usuarios es limitada debido a que actualmente no existe un sistema de autenticación real.
 * Las fechas deben enviarse preferiblemente como strings en formato ISO 8601.
 * El backend utiliza MySQL como base de datos.
 * El frontend es responsable de calcular y actualizar el contador de tiempo restante.

@@ -1,24 +1,10 @@
 import pool from '../config/database.js'
 
-const findUserIdByUsername = async (username) => {
+export const findGoalsByUserId = async (userId) => {
   const [rows] = await pool.query(
-    'SELECT id FROM users WHERE username = ?',
-    [username]
-  )
-
-  return rows[0]?.id
-}
-
-export const findGoalsByUsername = async (username) => {
-  const userId = await findUserIdByUsername(username)
-
-  if (!userId) {
-    return null
-  }
-
-  const [rows] = await pool.query(
-    `SELECT
+    `SELECT 
       id,
+      user_id,
       name,
       description,
       start_date,
@@ -36,16 +22,11 @@ export const findGoalsByUsername = async (username) => {
   return rows
 }
 
-export const findGoalById = async (username, goalId) => {
-  const userId = await findUserIdByUsername(username)
-
-  if (!userId) {
-    return null
-  }
-
+export const findGoalById = async (id, userId) => {
   const [rows] = await pool.query(
-    `SELECT
+    `SELECT 
       id,
+      user_id,
       name,
       description,
       start_date,
@@ -57,27 +38,19 @@ export const findGoalById = async (username, goalId) => {
     WHERE id = ?
       AND user_id = ?
       AND deleted_at IS NULL`,
-    [goalId, userId]
+    [id, userId]
   )
 
   return rows[0]
 }
 
-export const createGoal = async (
-  username,
-  {
-    name,
-    description,
-    startDate,
-    targetDate
-  }
-) => {
-  const userId = await findUserIdByUsername(username)
-
-  if (!userId) {
-    return null
-  }
-
+export const createGoal = async ({
+  userId,
+  name,
+  description,
+  startDate,
+  targetDate
+}) => {
   const [result] = await pool.query(
     `INSERT INTO goals (
       user_id,
@@ -96,12 +69,12 @@ export const createGoal = async (
     ]
   )
 
-  return findGoalById(username, result.insertId)
+  return findGoalById(result.insertId, userId)
 }
 
 export const updateGoal = async (
-  username,
-  goalId,
+  id,
+  userId,
   {
     name,
     description,
@@ -110,12 +83,6 @@ export const updateGoal = async (
     completed
   }
 ) => {
-  const userId = await findUserIdByUsername(username)
-
-  if (!userId) {
-    return null
-  }
-
   const [result] = await pool.query(
     `UPDATE goals
     SET
@@ -133,7 +100,7 @@ export const updateGoal = async (
       startDate,
       targetDate,
       completed,
-      goalId,
+      id,
       userId
     ]
   )
@@ -142,23 +109,17 @@ export const updateGoal = async (
     return null
   }
 
-  return findGoalById(username, goalId)
+  return findGoalById(id, userId)
 }
 
-export const deleteGoal = async (username, goalId) => {
-  const userId = await findUserIdByUsername(username)
-
-  if (!userId) {
-    return false
-  }
-
+export const deleteGoal = async (id, userId) => {
   const [result] = await pool.query(
     `UPDATE goals
     SET deleted_at = CURRENT_TIMESTAMP
     WHERE id = ?
       AND user_id = ?
       AND deleted_at IS NULL`,
-    [goalId, userId]
+    [id, userId]
   )
 
   return result.affectedRows > 0

@@ -10,14 +10,14 @@ import {
 
 const router = Router()
 
-router.get('/:username/goals', getGoals)
+router.get('/', getGoals)
 
-router.get('/:username/goals/:id', getGoalById)
+router.get('/:id', getGoalById)
 
-router.post('/:username/goals', createNewGoal)
+router.post('/', createNewGoal)
 
-router.patch('/:username/goals/:id', updateExistingGoal)
+router.patch('/:id', updateExistingGoal)
 
-router.delete('/:username/goals/:id', deleteExistingGoal)
+router.delete('/:id', deleteExistingGoal)
 
 export default router

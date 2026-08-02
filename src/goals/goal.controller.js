@@ -1,5 +1,5 @@
 import {
-  findGoalsByUsername,
+  findGoalsByUserId,
   findGoalById,
   createGoal,
   updateGoal,
@@ -8,15 +8,15 @@ import {
 
 export const getGoals = async (req, res) => {
   try {
-    const { username } = req.params
+    const { userId } = req.query
 
-    const goals = await findGoalsByUsername(username)
-
-    if (!goals) {
-      return res.status(404).json({
-        message: 'User not found'
+    if (!userId) {
+      return res.status(400).json({
+        message: 'User ID is required'
       })
     }
+
+    const goals = await findGoalsByUserId(userId)
 
     return res.status(200).json(goals)
   } catch (error) {
@@ -30,12 +30,16 @@ export const getGoals = async (req, res) => {
 
 export const getGoalById = async (req, res) => {
   try {
-    const {
-      username,
-      id
-    } = req.params
+    const { id } = req.params
+    const { userId } = req.query
 
-    const goal = await findGoalById(username, id)
+    if (!userId) {
+      return res.status(400).json({
+        message: 'User ID is required'
+      })
+    }
+
+    const goal = await findGoalById(id, userId)
 
     if (!goal) {
       return res.status(404).json({
@@ -55,36 +59,27 @@ export const getGoalById = async (req, res) => {
 
 export const createNewGoal = async (req, res) => {
   try {
-    const { username } = req.params
-
     const {
+      userId,
       name,
       description,
       startDate,
       targetDate
     } = req.body
 
-    if (!name || !startDate || !targetDate) {
+    if (!userId || !name || !startDate || !targetDate) {
       return res.status(400).json({
-        message: 'Name, start date and target date are required'
+        message: 'User ID, name, start date and target date are required'
       })
     }
 
-    const goal = await createGoal(
-      username,
-      {
-        name,
-        description,
-        startDate,
-        targetDate
-      }
-    )
-
-    if (!goal) {
-      return res.status(404).json({
-        message: 'User not found'
-      })
-    }
+    const goal = await createGoal({
+      userId,
+      name,
+      description,
+      startDate,
+      targetDate
+    })
 
     return res.status(201).json(goal)
   } catch (error) {
@@ -98,12 +93,9 @@ export const createNewGoal = async (req, res) => {
 
 export const updateExistingGoal = async (req, res) => {
   try {
+    const { id } = req.params
     const {
-      username,
-      id
-    } = req.params
-
-    const {
+      userId,
       name,
       description,
       startDate,
@@ -112,19 +104,20 @@ export const updateExistingGoal = async (req, res) => {
     } = req.body
 
     if (
+      !userId ||
       !name ||
       !startDate ||
       !targetDate ||
       completed === undefined
     ) {
       return res.status(400).json({
-        message: 'Name, start date, target date and completed are required'
+        message: 'User ID, name, start date, target date and completed are required'
       })
     }
 
     const goal = await updateGoal(
-      username,
       id,
+      userId,
       {
         name,
         description,
@@ -152,12 +145,16 @@ export const updateExistingGoal = async (req, res) => {
 
 export const deleteExistingGoal = async (req, res) => {
   try {
-    const {
-      username,
-      id
-    } = req.params
+    const { id } = req.params
+    const { userId } = req.query
 
-    const deleted = await deleteGoal(username, id)
+    if (!userId) {
+      return res.status(400).json({
+        message: 'User ID is required'
+      })
+    }
+
+    const deleted = await deleteGoal(id, userId)
 
     if (!deleted) {
       return res.status(404).json({
